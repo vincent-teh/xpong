@@ -20,6 +20,9 @@
 
 #include <stdint.h>
 
+#define OP_CMD 0
+#define OP_ACK 1
+
 typedef struct net_packet {
   /* TODO: Declare variables according to the protocol. */
   uint8_t cmd;
