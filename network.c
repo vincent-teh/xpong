@@ -58,7 +58,7 @@ void net_init(unsigned short port_self, const char *hostname_other,
 	struct sockaddr_in sock_addr_self;
 	memset(&sock_addr_self, 0, sizeof(sock_addr_self));
 	sock_addr_self.sin_family = AF_INET;
-	sock_addr_self.sin_addr.s_addr = INADDR_ANY;
+	sock_addr_self.sin_addr.s_addr = htonl(INADDR_ANY);
 	sock_addr_self.sin_port = htons(port_self);
 
 	if (bind(sock, (struct sockaddr *)&sock_addr_self,
@@ -79,7 +79,7 @@ void net_init(unsigned short port_self, const char *hostname_other,
 		close(sock);
 		exit(EXIT_FAILURE);
 	}
-	memcpy(&sock_addr_other.sin_addr, host->h_addr_list, host->h_length);
+	// memcpy(&sock_addr_other.sin_addr, host->h_addr_list, host->h_length);
 }
 
 void net_fini()
@@ -121,8 +121,9 @@ int net_poll(net_packet_t *pkt)
 	 */
     struct pollfd pfd = {.fd=sock, .events=POLLIN};
     int ret = poll(&pfd, 1, 0);
-    if (ret <= 0)
+    if (ret <= 0) {
         return 0;
+    }
     unsigned char buffer[1024];
     socklen_t addr_len = sizeof(sock_addr_other);
     ssize_t bytes_received = recvfrom(sock, buffer, sizeof(buffer), 0,

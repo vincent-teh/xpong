@@ -79,7 +79,6 @@ int main(int argc, char *argv[argc + 1])
 			 */
 			net_packet_t pkt;
 			while (net_poll(&pkt)) {
-                printf("This line is run");
 				if (pkt.cmd == OP_ACK)
 					epoch_state.ack = true;
 				else if (pkt.cmd == OP_CMD) {
@@ -102,10 +101,11 @@ int main(int argc, char *argv[argc + 1])
 			}
 
 			/* TODO: Send a command packet. */
-			net_packet_t cmd_pkt = {.cmd = cmds[player],
+			net_packet_t cmd_pkt = {.cmd = OP_CMD,
 						.epoch = epoch,
-						.input = CMD_NONE};
+						.input = cmds[player]};
 			net_send(&cmd_pkt);
+
 
 			/* TODO: Add conditions for simulation. To simulate and
 			   move onto the next epoch, we must have received the
@@ -117,8 +117,7 @@ int main(int argc, char *argv[argc + 1])
 				++epoch;
 				epoch_state.cmd_self = epoch_state.cmd =
 				    epoch_state.ack = false;
-
-				win_render(&state);
+                win_render(&state);
 			}
 		}
 	}
