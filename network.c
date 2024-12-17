@@ -119,10 +119,27 @@ int net_poll(net_packet_t *pkt)
 	 *
 	 * Returns 1 otherwise.
 	 */
+    struct pollfd pfd = {.fd=sock, .events=POLLIN};
+    int ret = poll(&pfd, 1, 0);
+    if (ret <= 0)
+        return 0;
+    unsigned char buffer[1024];
+    socklen_t addr_len = sizeof(sock_addr_other);
+    ssize_t bytes_received = recvfrom(sock, buffer, sizeof(buffer), 0,
+                                      (struct sockaddr *)&sock_addr_other, &addr_len);
+    if (bytes_received > 0) {
+        deserialise(pkt, buffer);
+        return 1;
+    }
 	return 0;
 }
 
 void net_send(const net_packet_t *pkt)
 {
 	/* TODO: Serialise and send the packet to the other's socket. */
+    unsigned char buffer[1024];
+    serialise(buffer, pkt);
+
+    sendto(sock, buffer, sizeof(buffer), 0, (struct sockaddr *)&sock_addr_other,
+           sizeof(sock_addr_other));
 }
